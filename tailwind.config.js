@@ -1,0 +1,130 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./resources/views/**/*.blade.php",
+    "./resources/js/**/*.js",
+    "./app/**/*.php",
+    "./app/Filament/**/*.php",
+    "./resources/css/**/*.css",
+  ],
+  darkMode: ['class'],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#F2F7FF',
+          100: '#E0EEFF',
+          200: '#B9D6FF',
+          300: '#84B5FF',
+          400: '#4D90FF',
+          500: '#2472FF',
+          600: '#1756DB',
+          700: '#1544AD',
+          800: '#173D8A',
+          900: '#18356F',
+        },
+        secondary: {
+          50: '#F1FCFF',
+          100: '#DDF8FF',
+          200: '#B5F0FF',
+          300: '#75E2FF',
+          400: '#24CBFF',
+          500: '#00AFEF',
+          600: '#0088C2',
+          700: '#056C9A',
+          800: '#0B597E',
+          900: '#104967',
+        },
+        surface: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#182334',
+          900: '#0B1220',
+          950: '#040816',
+        },
+        success: '#22C55E',
+        warning: '#F59E0B',
+        danger: '#F43F5E',
+        info: '#38BDF8',
+        present: '#22C55E',
+        late: '#F59E0B',
+        alfa: '#F43F5E',
+        overtime: '#A855F7',
+        leave: '#0EA5E9',
+        payroll: '#14B8A6',
+        approval: '#6366F1',
+        glass: {
+          DEFAULT: 'rgba(15, 23, 42, 0.68)',
+          strong: 'rgba(4, 8, 22, 0.88)',
+          border: 'rgba(148, 163, 184, 0.16)',
+        },
+      },
+      borderRadius: {
+        'full': '9999px',
+        '3xl': '1.5rem',
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+      },
+      backdropBlur: {
+        'xl': '20px',
+        '2xl': '32px',
+      },
+      boxShadow: {
+        'glass': '0 22px 50px rgba(2, 6, 23, 0.34), inset 0 1px 0 rgba(255,255,255,0.05)',
+        'glass-lg': '0 32px 80px rgba(2, 6, 23, 0.45), 0 14px 36px rgba(15,23,42,0.18)',
+        'glass-xl': '0 44px 120px rgba(2, 6, 23, 0.55), 0 16px 40px rgba(14,116,144,0.18)',
+        'inner-glow': 'inset 0 1px 0 rgba(255,255,255,0.08)',
+      },
+      animation: {
+        'floaty': 'floaty 6s ease-in-out infinite',
+        'fade-up': 'fadeInUp 0.75s ease both',
+        'scan-pulse': 'scanPulse 2s infinite',
+        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+        'shimmer': 'shimmer 2.4s linear infinite',
+      },
+      keyframes: {
+        floaty: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        fadeInUp: {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateY(18px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+        scanPulse: {
+          '0%, 100%': { transform: 'translateY(-100%)', opacity: '0' },
+          '50%': { opacity: '1' },
+          '100%': { transform: 'translateY(500%)', opacity: '0' },
+        },
+        pulseSoft: {
+          '0%, 100%': { opacity: '0.8', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.03)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'Plus Jakarta Sans', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['Fira Code', 'Courier New', 'monospace'],
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
+}
