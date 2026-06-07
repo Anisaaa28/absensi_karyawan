@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('content')
 <div x-data="{ shown: false, loading: false, showPassword: false }" x-init="setTimeout(() => shown = true, 100)" class="relative min-h-[calc(100svh-40px)] overflow-hidden">

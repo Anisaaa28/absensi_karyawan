@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('content')
 <div class="grid min-h-[calc(100svh-56px)] place-items-center py-10 sm:py-12 lg:min-h-[calc(100svh-72px)]">
