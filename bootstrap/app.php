@@ -15,11 +15,12 @@ $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
-// On Vercel, override the storage and bootstrap cache paths to /tmp
-// since the serverless filesystem is read-only except /tmp.
+// On Vercel, the filesystem is read-only except /tmp.
+// Redirect the storage path so Laravel writes logs, views, cache to /tmp.
+// Bootstrap cache paths are handled via env vars (APP_CONFIG_CACHE, etc.)
+// which are set in api/index.php before this file is loaded.
 if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
     $app->useStoragePath('/tmp/storage');
-    $app->useBootstrapPath('/tmp/bootstrap');
 }
 
 /*
