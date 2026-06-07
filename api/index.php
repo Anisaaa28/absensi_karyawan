@@ -29,25 +29,40 @@ foreach ($writablePaths as $path) {
     }
 }
 
-// Force fresh bootstrap cache generation by deleting stale cache files
-// This ensures providers (including ViewServiceProvider) are registered correctly
-@unlink('/tmp/bootstrap/cache/services.php');
-@unlink('/tmp/bootstrap/cache/packages.php');
-@unlink('/tmp/bootstrap/cache/config.php');
+// Disable config caching on Vercel - copy bootstrap files and skip config cache
+// This prevents stale cache errors in serverless environments
+putenv('APP_CONFIG_CACHE=');  // Empty = disable config caching
+putenv('APP_ROUTES_CACHE=');  // Empty = disable route caching
+
+// Copy bootstrap cache files to writable /tmp location
+$bootstrapCacheFiles = [
+    __DIR__ . '/../bootstrap/cache/packages.php',
+    __DIR__ . '/../bootstrap/cache/services.php',
+];
+
+foreach ($bootstrapCacheFiles as $file) {
+    if (file_exists($file)) {
+        $tmpFile = str_replace(__DIR__ . '/../bootstrap', '/tmp/bootstrap', $file);
+        if (! file_exists($tmpFile)) {
+            @copy($file, $tmpFile);
+        }
+    }
+}
 
 // Set environment variables for Vercel's /tmp filesystem
 // These must be set BEFORE Laravel's bootstrap process
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 putenv('BOOTSTRAP_CACHE_PATH=/tmp/bootstrap/cache');
-putenv('CONFIG_CACHE_PATH=/tmp/bootstrap/cache/config.php');
 
 // Set $_ENV and $_SERVER for Laravel's configuration system
+$_ENV['APP_CONFIG_CACHE'] = '';  // Disable config caching
+$_SERVER['APP_CONFIG_CACHE'] = '';
+$_ENV['APP_ROUTES_CACHE'] = '';  // Disable route caching
+$_SERVER['APP_ROUTES_CACHE'] = '';
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_ENV['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
 $_SERVER['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
-$_ENV['CONFIG_CACHE_PATH'] = '/tmp/bootstrap/cache/config.php';
-$_SERVER['CONFIG_CACHE_PATH'] = '/tmp/bootstrap/cache/config.php';
 
 error_log('[vercel-entry] booting Laravel, APP_DEBUG=' . getenv('APP_DEBUG') . ' APP_KEY=' . (getenv('APP_KEY') ? 'set' : 'EMPTY') . ' DB_HOST=' . getenv('DB_HOST'));
 

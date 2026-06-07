@@ -29,6 +29,8 @@
         "APP_ENV": "production",
         "APP_DEBUG": "false",
         "APP_URL": "https://absensi-karyawan-psi.vercel.app",
+        "APP_CONFIG_CACHE": "",
+        "APP_ROUTES_CACHE": "",
         "LOG_CHANNEL": "stderr",
         "LOG_LEVEL": "info",
         "SESSION_DRIVER": "cookie",
@@ -37,7 +39,6 @@
         "FILESYSTEM_DISK": "public",
         "BCRYPT_ROUNDS": "10",
         "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-        "BOOTSTRAP_CACHE_PATH": "/tmp/bootstrap/cache",
-        "CONFIG_CACHE_PATH": "/tmp/bootstrap/cache/config.php"
+        "BOOTSTRAP_CACHE_PATH": "/tmp/bootstrap/cache"
     }
 }
