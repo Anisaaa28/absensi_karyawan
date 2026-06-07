@@ -11,6 +11,14 @@
 |
 */
 
+// Override bootstrap cache and view paths for Vercel/serverless environments
+if (getenv('BOOTSTRAP_CACHE_PATH')) {
+    $_ENV['BOOTSTRAP_CACHE_PATH'] = getenv('BOOTSTRAP_CACHE_PATH');
+}
+if (getenv('VIEW_COMPILED_PATH')) {
+    $_ENV['VIEW_COMPILED_PATH'] = getenv('VIEW_COMPILED_PATH');
+}
+
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );

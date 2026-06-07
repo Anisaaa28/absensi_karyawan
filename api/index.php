@@ -29,42 +29,23 @@ foreach ($writablePaths as $path) {
     }
 }
 
-// Regenerate bootstrap cache files on Vercel to ensure providers are registered correctly
-// Delete any stale cache to force fresh generation
+// Force fresh bootstrap cache generation by deleting stale cache files
+// This ensures providers (including ViewServiceProvider) are registered correctly
 @unlink('/tmp/bootstrap/cache/services.php');
 @unlink('/tmp/bootstrap/cache/packages.php');
+@unlink('/tmp/bootstrap/cache/config.php');
 
-// Copy fresh bootstrap cache files from read-only filesystem
-$bootstrapCacheFiles = [
-    __DIR__ . '/../bootstrap/cache/packages.php',
-    __DIR__ . '/../bootstrap/cache/services.php',
-];
+// Set environment variables for Vercel's /tmp filesystem
+// These must be set BEFORE Laravel's bootstrap process
+putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
+putenv('BOOTSTRAP_CACHE_PATH=/tmp/bootstrap/cache');
+putenv('CONFIG_CACHE_PATH=/tmp/bootstrap/cache/config.php');
 
-foreach ($bootstrapCacheFiles as $file) {
-    if (file_exists($file)) {
-        $tmpFile = str_replace(__DIR__ . '/../bootstrap', '/tmp/bootstrap', $file);
-        @copy($file, $tmpFile);
-    }
-}
-
-// Tell Laravel where to write compiled views (Blade cache).
-if (! getenv('VIEW_COMPILED_PATH')) {
-    putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
-}
+// Set $_ENV and $_SERVER for Laravel's configuration system
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
-
-// Tell Laravel to use /tmp for bootstrap cache
-if (! getenv('BOOTSTRAP_CACHE_PATH')) {
-    putenv('BOOTSTRAP_CACHE_PATH=/tmp/bootstrap/cache');
-}
 $_ENV['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
 $_SERVER['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
-
-// Tell Laravel to use /tmp for config cache
-if (! getenv('CONFIG_CACHE_PATH')) {
-    putenv('CONFIG_CACHE_PATH=/tmp/bootstrap/cache/config.php');
-}
 $_ENV['CONFIG_CACHE_PATH'] = '/tmp/bootstrap/cache/config.php';
 $_SERVER['CONFIG_CACHE_PATH'] = '/tmp/bootstrap/cache/config.php';
 
