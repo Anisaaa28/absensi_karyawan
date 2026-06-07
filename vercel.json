@@ -2,15 +2,22 @@
     "version": 2,
     "builds": [
         {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "buildCommand": "npm run build",
+                "outputDirectory": "public/build"
+            }
+        },
+        {
             "src": "api/index.php",
             "use": "vercel-php@0.6.0"
         }
     ],
     "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "api/index.php"
-        }
+        { "src": "/build/(.*)", "dest": "/build/$1" },
+        { "src": "/storage/(.*)", "dest": "/storage/$1" },
+        { "src": "/(.*)", "dest": "api/index.php" }
     ],
     "env": {
         "APP_ENV": "production",
