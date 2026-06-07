@@ -29,12 +29,34 @@ foreach ($writablePaths as $path) {
     }
 }
 
+// Copy bootstrap cache files to /tmp if they don't exist
+$bootstrapCacheFiles = [
+    __DIR__ . '/../bootstrap/cache/packages.php',
+    __DIR__ . '/../bootstrap/cache/services.php',
+];
+
+foreach ($bootstrapCacheFiles as $file) {
+    if (file_exists($file)) {
+        $tmpFile = str_replace(__DIR__ . '/../bootstrap', '/tmp/bootstrap', $file);
+        if (! file_exists($tmpFile)) {
+            @copy($file, $tmpFile);
+        }
+    }
+}
+
 // Tell Laravel where to write compiled views (Blade cache).
 if (! getenv('VIEW_COMPILED_PATH')) {
     putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 }
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
+
+// Tell Laravel to use /tmp for bootstrap cache
+if (! getenv('BOOTSTRAP_CACHE_PATH')) {
+    putenv('BOOTSTRAP_CACHE_PATH=/tmp/bootstrap/cache');
+}
+$_ENV['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
+$_SERVER['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
 
 error_log('[vercel-entry] booting Laravel, APP_DEBUG=' . getenv('APP_DEBUG') . ' APP_KEY=' . (getenv('APP_KEY') ? 'set' : 'EMPTY') . ' DB_HOST=' . getenv('DB_HOST'));
 
