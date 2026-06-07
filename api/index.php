@@ -29,46 +29,30 @@ foreach ($writablePaths as $path) {
     }
 }
 
-// Copy entire bootstrap and config directories to /tmp for Vercel
-// This ensures Laravel can find all configuration files
-$directoriesToCopy = [
-    __DIR__ . '/../bootstrap' => '/tmp/bootstrap',
-    __DIR__ . '/../config' => '/tmp/config',
+// FIX: Do NOT set APP_CONFIG_CACHE or APP_ROUTES_CACHE to empty strings.
+// Laravel's normalizeCachePath() treats empty string as a relative path
+// and resolves it to the base directory, causing "require(/var/task/user)" to fail.
+// Instead, point them to a non-existent file in /tmp so Laravel skips the cache
+// and loads config files dynamically.
+$cacheOverrides = [
+    'APP_CONFIG_CACHE'  => '/tmp/bootstrap/cache/config.php',
+    'APP_ROUTES_CACHE'  => '/tmp/bootstrap/cache/routes-v7.php',
+    'APP_SERVICES_CACHE' => '/tmp/bootstrap/cache/services.php',
+    'APP_PACKAGES_CACHE' => '/tmp/bootstrap/cache/packages.php',
+    'APP_EVENTS_CACHE'  => '/tmp/bootstrap/cache/events.php',
 ];
 
-foreach ($directoriesToCopy as $source => $dest) {
-    if (is_dir($source) && ! is_dir($dest)) {
-        // Recursive directory copy
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-        
-        foreach ($files as $file) {
-            $target = $dest . substr($file->getPathname(), strlen($source));
-            if ($file->isDir()) {
-                @mkdir($target, 0755, true);
-            } else {
-                @copy($file->getPathname(), $target);
-            }
-        }
-    }
+foreach ($cacheOverrides as $key => $value) {
+    putenv("{$key}={$value}");
+    $_ENV[$key] = $value;
+    $_SERVER[$key] = $value;
 }
-
-// Disable config caching on Vercel - use dynamic config loading
-putenv('APP_CONFIG_CACHE=');  // Empty = disable config caching
-putenv('APP_ROUTES_CACHE=');  // Empty = disable route caching
 
 // Set environment variables for Vercel's /tmp filesystem
 // These must be set BEFORE Laravel's bootstrap process
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 putenv('BOOTSTRAP_CACHE_PATH=/tmp/bootstrap/cache');
 
-// Set $_ENV and $_SERVER for Laravel's configuration system
-$_ENV['APP_CONFIG_CACHE'] = '';  // Disable config caching
-$_SERVER['APP_CONFIG_CACHE'] = '';
-$_ENV['APP_ROUTES_CACHE'] = '';  // Disable route caching
-$_SERVER['APP_ROUTES_CACHE'] = '';
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_ENV['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';

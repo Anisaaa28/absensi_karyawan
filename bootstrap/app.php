@@ -11,22 +11,16 @@
 |
 */
 
-// Override bootstrap cache and view paths for Vercel/serverless environments
-if (getenv('BOOTSTRAP_CACHE_PATH')) {
-    $_ENV['BOOTSTRAP_CACHE_PATH'] = getenv('BOOTSTRAP_CACHE_PATH');
-}
-if (getenv('VIEW_COMPILED_PATH')) {
-    $_ENV['VIEW_COMPILED_PATH'] = getenv('VIEW_COMPILED_PATH');
-}
+$app = new Illuminate\Foundation\Application(
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+);
 
-// On Vercel, use /tmp as the base path so config/bootstrap can be found
-$basePath = ($_ENV['APP_BASE_PATH'] ?? dirname(__DIR__));
-if (is_dir('/tmp/config') && is_dir('/tmp/bootstrap')) {
-    // We're on Vercel and have copied files to /tmp
-    $basePath = '/var/task/user';  // Keep the original path, files are in /tmp subdirs
+// On Vercel, override the storage and bootstrap cache paths to /tmp
+// since the serverless filesystem is read-only except /tmp.
+if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
+    $app->useStoragePath('/tmp/storage');
+    $app->useBootstrapPath('/tmp/bootstrap');
 }
-
-$app = new Illuminate\Foundation\Application($basePath);
 
 /*
 |--------------------------------------------------------------------------
