@@ -23,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Force HTTPS in production (Vercel serves over HTTPS)
+        if (config('app.env') === 'production' || getenv('VERCEL')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Paksa timezone & locale mengikuti .env (override cache config)
         config([
             'app.timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
