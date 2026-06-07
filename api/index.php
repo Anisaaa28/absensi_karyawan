@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-// Writable paths on Vercel — filesystem is read-only outside /tmp.
+// Writable paths on Vercel — filesystem is read-only except /tmp.
 $writablePaths = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -29,7 +29,12 @@ foreach ($writablePaths as $path) {
     }
 }
 
-// Copy bootstrap cache files to /tmp if they don't exist
+// Regenerate bootstrap cache files on Vercel to ensure providers are registered correctly
+// Delete any stale cache to force fresh generation
+@unlink('/tmp/bootstrap/cache/services.php');
+@unlink('/tmp/bootstrap/cache/packages.php');
+
+// Copy fresh bootstrap cache files from read-only filesystem
 $bootstrapCacheFiles = [
     __DIR__ . '/../bootstrap/cache/packages.php',
     __DIR__ . '/../bootstrap/cache/services.php',
@@ -38,9 +43,7 @@ $bootstrapCacheFiles = [
 foreach ($bootstrapCacheFiles as $file) {
     if (file_exists($file)) {
         $tmpFile = str_replace(__DIR__ . '/../bootstrap', '/tmp/bootstrap', $file);
-        if (! file_exists($tmpFile)) {
-            @copy($file, $tmpFile);
-        }
+        @copy($file, $tmpFile);
     }
 }
 
@@ -57,6 +60,13 @@ if (! getenv('BOOTSTRAP_CACHE_PATH')) {
 }
 $_ENV['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
 $_SERVER['BOOTSTRAP_CACHE_PATH'] = '/tmp/bootstrap/cache';
+
+// Tell Laravel to use /tmp for config cache
+if (! getenv('CONFIG_CACHE_PATH')) {
+    putenv('CONFIG_CACHE_PATH=/tmp/bootstrap/cache/config.php');
+}
+$_ENV['CONFIG_CACHE_PATH'] = '/tmp/bootstrap/cache/config.php';
+$_SERVER['CONFIG_CACHE_PATH'] = '/tmp/bootstrap/cache/config.php';
 
 error_log('[vercel-entry] booting Laravel, APP_DEBUG=' . getenv('APP_DEBUG') . ' APP_KEY=' . (getenv('APP_KEY') ? 'set' : 'EMPTY') . ' DB_HOST=' . getenv('DB_HOST'));
 

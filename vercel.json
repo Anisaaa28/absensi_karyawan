@@ -37,6 +37,7 @@
         "FILESYSTEM_DISK": "public",
         "BCRYPT_ROUNDS": "10",
         "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-        "BOOTSTRAP_CACHE_PATH": "/tmp/bootstrap/cache"
+        "BOOTSTRAP_CACHE_PATH": "/tmp/bootstrap/cache",
+        "CONFIG_CACHE_PATH": "/tmp/bootstrap/cache/config.php"
     }
 }
