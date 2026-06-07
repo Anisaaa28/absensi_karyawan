@@ -19,9 +19,14 @@ if (getenv('VIEW_COMPILED_PATH')) {
     $_ENV['VIEW_COMPILED_PATH'] = getenv('VIEW_COMPILED_PATH');
 }
 
-$app = new Illuminate\Foundation\Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
+// On Vercel, use /tmp as the base path so config/bootstrap can be found
+$basePath = ($_ENV['APP_BASE_PATH'] ?? dirname(__DIR__));
+if (is_dir('/tmp/config') && is_dir('/tmp/bootstrap')) {
+    // We're on Vercel and have copied files to /tmp
+    $basePath = '/var/task/user';  // Keep the original path, files are in /tmp subdirs
+}
+
+$app = new Illuminate\Foundation\Application($basePath);
 
 /*
 |--------------------------------------------------------------------------

@@ -29,25 +29,35 @@ foreach ($writablePaths as $path) {
     }
 }
 
-// Disable config caching on Vercel - copy bootstrap files and skip config cache
-// This prevents stale cache errors in serverless environments
-putenv('APP_CONFIG_CACHE=');  // Empty = disable config caching
-putenv('APP_ROUTES_CACHE=');  // Empty = disable route caching
-
-// Copy bootstrap cache files to writable /tmp location
-$bootstrapCacheFiles = [
-    __DIR__ . '/../bootstrap/cache/packages.php',
-    __DIR__ . '/../bootstrap/cache/services.php',
+// Copy entire bootstrap and config directories to /tmp for Vercel
+// This ensures Laravel can find all configuration files
+$directoriesToCopy = [
+    __DIR__ . '/../bootstrap' => '/tmp/bootstrap',
+    __DIR__ . '/../config' => '/tmp/config',
 ];
 
-foreach ($bootstrapCacheFiles as $file) {
-    if (file_exists($file)) {
-        $tmpFile = str_replace(__DIR__ . '/../bootstrap', '/tmp/bootstrap', $file);
-        if (! file_exists($tmpFile)) {
-            @copy($file, $tmpFile);
+foreach ($directoriesToCopy as $source => $dest) {
+    if (is_dir($source) && ! is_dir($dest)) {
+        // Recursive directory copy
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($files as $file) {
+            $target = $dest . substr($file->getPathname(), strlen($source));
+            if ($file->isDir()) {
+                @mkdir($target, 0755, true);
+            } else {
+                @copy($file->getPathname(), $target);
+            }
         }
     }
 }
+
+// Disable config caching on Vercel - use dynamic config loading
+putenv('APP_CONFIG_CACHE=');  // Empty = disable config caching
+putenv('APP_ROUTES_CACHE=');  // Empty = disable route caching
 
 // Set environment variables for Vercel's /tmp filesystem
 // These must be set BEFORE Laravel's bootstrap process
