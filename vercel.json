@@ -2,6 +2,10 @@
     "version": 2,
     "builds": [
         {
+            "src": "public/**",
+            "use": "@vercel/static"
+        },
+        {
             "src": "api/index.php",
             "use": "vercel-php@0.7.4",
             "config": {
@@ -11,16 +15,16 @@
         }
     ],
     "routes": [
-        { "src": "/build/(.*)", "dest": "/build/$1" },
-        { "src": "/favicon.ico", "dest": "/favicon.ico" },
-        { "src": "/robots.txt", "dest": "/robots.txt" },
-        { "src": "/(.*?\\.(?:png|jpg|jpeg|gif|svg|webp|avif|woff2?|ttf|eot|css|js|mjs|map|json|xml|txt|pdf|ico))$", "dest": "/$1" },
+        { "src": "/build/(.*)", "dest": "/public/build/$1" },
+        { "src": "/favicon.ico", "dest": "/public/favicon.ico" },
+        { "src": "/robots.txt", "dest": "/public/robots.txt" },
+        { "src": "/(.*?\\.(?:png|jpg|jpeg|gif|svg|webp|avif|woff2?|ttf|eot|css|js|mjs|map|xml|txt|pdf|ico))$", "dest": "/public/$1" },
         { "src": "/(.*)", "dest": "api/index.php" }
     ],
     "env": {
         "APP_NAME": "Absensi Karyawan",
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
         "APP_KEY": "base64:oclJ9XUelqh4WhsgHKa3lf7dvstoKd7Rx+fka6Xq94w=",
         "APP_URL": "https://absensi-karyawan-iota.vercel.app",
         "APP_TIMEZONE": "Asia/Jakarta",
