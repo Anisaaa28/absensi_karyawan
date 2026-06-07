@@ -12,6 +12,8 @@
  * before booting the framework.
  */
 
+declare(strict_types=1);
+
 // Writable paths on Vercel — filesystem is read-only outside /tmp.
 $writablePaths = [
     '/tmp/storage/framework/views',
@@ -28,12 +30,27 @@ foreach ($writablePaths as $path) {
 }
 
 // Tell Laravel where to write compiled views (Blade cache).
-// Other paths (sessions, cache) are already redirected to /tmp
-// via the env config block in vercel.json.
 if (! getenv('VIEW_COMPILED_PATH')) {
     putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 }
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 $_SERVER['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 
-require __DIR__ . '/../public/index.php';
+error_log('[vercel-entry] booting Laravel, APP_DEBUG=' . getenv('APP_DEBUG') . ' APP_KEY=' . (getenv('APP_KEY') ? 'set' : 'EMPTY') . ' DB_HOST=' . getenv('DB_HOST'));
+
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    error_log('[vercel-entry] FATAL: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+    error_log('[vercel-entry] TRACE: ' . $e->getTraceAsString());
+
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "=== VERCEL DEPLOYMENT ERROR ===\n";
+    echo "Message: " . $e->getMessage() . "\n";
+    echo "File: " . $e->getFile() . ':' . $e->getLine() . "\n\n";
+    echo "Stack trace:\n" . $e->getTraceAsString() . "\n\n";
+    echo "Hint: Check Vercel Dashboard → Settings → Environment Variables.\n";
+    echo "Most common cause: missing APP_KEY, DB_HOST, or DB_PASSWORD.\n";
+    exit(1);
+}
